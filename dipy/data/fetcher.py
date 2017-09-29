@@ -252,10 +252,10 @@ def _make_fetcher(name, folder, baseurl, remote_fnames, local_fnames,
 fetch_isbi2013_2shell = _make_fetcher(
     "fetch_isbi2013_2shell",
     pjoin(dipy_home, 'isbi2013'),
-    'https://dl.dropboxusercontent.com/u/2481924/isbi2013_merlet/',
-    ['2shells-1500-2500-N64-SNR-30.nii.gz',
-     '2shells-1500-2500-N64.bval',
-     '2shells-1500-2500-N64.bvec'],
+    'https://digital.lib.washington.edu/researchworks/bitstream/handle/1773/38465/',
+    ['phantom64.nii.gz',
+     'phantom64.bval',
+     'phantom64.bvec'],
     ['phantom64.nii.gz', 'phantom64.bval', 'phantom64.bvec'],
     ['42911a70f232321cf246315192d69c42',
      '90e8cf66e0f4d9737a3b3c0da24df5ea',
@@ -276,10 +276,8 @@ fetch_stanford_labels = _make_fetcher(
 fetch_sherbrooke_3shell = _make_fetcher(
     "fetch_sherbrooke_3shell",
     pjoin(dipy_home, 'sherbrooke_3shell'),
-    'https://dl.dropboxusercontent.com/u/2481924/sherbrooke_data/',
-    ['3shells-1000-2000-3500-N193.nii.gz',
-     '3shells-1000-2000-3500-N193.bval',
-     '3shells-1000-2000-3500-N193.bvec'],
+"https://digital.lib.washington.edu/researchworks/bitstream/handle/1773/38475/",
+    ['HARDI193.nii.gz', 'HARDI193.bval', 'HARDI193.bvec'],
     ['HARDI193.nii.gz', 'HARDI193.bval', 'HARDI193.bvec'],
     ['0b735e8f16695a37bfbd66aab136eb66',
      'e9b9bb56252503ea49d31fb30a0ac637',
@@ -335,7 +333,7 @@ fetch_taiwan_ntu_dsi = _make_fetcher(
 fetch_syn_data = _make_fetcher(
     "fetch_syn_data",
     pjoin(dipy_home, 'syn_test'),
-    'https://dl.dropboxusercontent.com/u/5918983/',
+"https://digital.lib.washington.edu/researchworks/bitstream/handle/1773/38476/",
     ['t1.nii.gz', 'b0.nii.gz'],
     ['t1.nii.gz', 'b0.nii.gz'],
     ['701bda02bb769655c7d4a9b1df2b73a6',
@@ -387,7 +385,7 @@ fetch_viz_icons = _make_fetcher("fetch_viz_icons",
 fetch_bundles_2_subjects = _make_fetcher(
     "fetch_bundles_2_subjects",
     pjoin(dipy_home, 'exp_bundles_and_maps'),
-    'https://dl.dropboxusercontent.com/u/2481924/',
+'https://digital.lib.washington.edu/researchworks/bitstream/handle/1773/38477/',
     ['bundles_2_subjects.tar.gz'],
     ['bundles_2_subjects.tar.gz'],
     ['97756fbef11ce2df31f1bedf1fc7aac7'],
@@ -401,9 +399,9 @@ fetch_ivim = _make_fetcher(
     'https://ndownloader.figshare.com/files/',
     ['5305243', '5305246', '5305249'],
     ['ivim.nii.gz', 'ivim.bval', 'ivim.bvec'],
-    ['cda596f89dc2676af7d9bf1cabccf600', 
-    'f03d89f84aa9a9397103a400e43af43a',
-    'fb633a06b02807355e49ccd85cb92565'],
+    ['cda596f89dc2676af7d9bf1cabccf600',
+     'f03d89f84aa9a9397103a400e43af43a',
+     'fb633a06b02807355e49ccd85cb92565'],
     doc="Download IVIM dataset")
 
 
@@ -569,6 +567,76 @@ def read_syn_data():
     t1 = nib.load(t1_name)
     b0 = nib.load(b0_name)
     return t1, b0
+
+
+def fetch_tissue_data():
+    """ Download images to be used for tissue classification
+    """
+
+    t1 = 'https://ndownloader.figshare.com/files/6965969'
+    t1d = 'https://ndownloader.figshare.com/files/6965981'
+    ap = 'https://ndownloader.figshare.com/files/6965984'
+
+    folder = pjoin(dipy_home, 'tissue_data')
+
+    md5_list = ['99c4b77267a6855cbfd96716d5d65b70',  # t1
+                '4b87e1b02b19994fbd462490cc784fa3',  # t1d
+                'c0ea00ed7f2ff8b28740f18aa74bff6a']  # ap
+
+    url_list = [t1, t1d, ap]
+    fname_list = ['t1_brain.nii.gz', 't1_brain_denoised.nii.gz',
+                  'power_map.nii.gz']
+
+    if not os.path.exists(folder):
+        print('Creating new directory %s' % folder)
+        os.makedirs(folder)
+        msg = 'Downloading 3 Nifti1 images (9.3MB)...'
+        print(msg)
+
+        for i in range(len(md5_list)):
+            _get_file_data(pjoin(folder, fname_list[i]), url_list[i])
+            check_md5(pjoin(folder, fname_list[i]), md5_list[i])
+
+        print('Done.')
+        print('Files copied in folder %s' % folder)
+    else:
+        _already_there_msg(folder)
+
+
+def read_tissue_data(contrast='T1'):
+    """ Load images to be used for tissue classification
+
+    Parameters
+    ----------
+    constrast : str
+        'T1', 'T1 denoised' or 'Anisotropic Power'
+
+    Returns
+    -------
+    image : obj,
+        Nifti1Image
+
+    """
+    folder = pjoin(dipy_home, 'tissue_data')
+    t1_name = pjoin(folder, 't1_brain.nii.gz')
+    t1d_name = pjoin(folder, 't1_brain_denoised.nii.gz')
+    ap_name = pjoin(folder, 'power_map.nii.gz')
+
+    md5_dict = {'t1': '99c4b77267a6855cbfd96716d5d65b70',
+                't1d': '4b87e1b02b19994fbd462490cc784fa3',
+                'ap': 'c0ea00ed7f2ff8b28740f18aa74bff6a'}
+
+    check_md5(t1_name, md5_dict['t1'])
+    check_md5(t1d_name, md5_dict['t1d'])
+    check_md5(ap_name, md5_dict['ap'])
+
+    if contrast == 'T1 denoised':
+        return nib.load(t1d_name)
+    elif contrast == 'Anisotropic Power':
+        return nib.load(ap_name)
+    else:
+        return nib.load(t1_name)
+
 
 mni_notes = \
     """
@@ -778,7 +846,7 @@ def read_cenir_multib(bvals=None):
         bvec_list.append(np.loadtxt(file_dict[bval]['bvecs']))
 
     # All affines are the same, so grab the last one:
-    aff = nib.load(file_dict[bval]['DWI']).get_affine()
+    aff = nib.load(file_dict[bval]['DWI']).affine
     return (nib.Nifti1Image(np.concatenate(data, -1), aff),
             gradient_table(bval_list, np.concatenate(bvec_list, -1)))
 
@@ -863,13 +931,13 @@ def read_bundles_2_subjects(subj_id='subj_1', metrics=['fa'],
     if 't1' in metrics:
         img = nib.load(pjoin(dname, subj_id, 't1_warped.nii.gz'))
         data = img.get_data()
-        affine = img.get_affine()
+        affine = img.affine
         res['t1'] = data
 
     if 'fa' in metrics:
         img_fa = nib.load(pjoin(dname, subj_id, 'fa_1x1x1.nii.gz'))
         fa = img_fa.get_data()
-        affine = img_fa.get_affine()
+        affine = img_fa.affine
         res['fa'] = fa
 
     res['affine'] = affine
@@ -883,6 +951,7 @@ def read_bundles_2_subjects(subj_id='subj_1', metrics=['fa'],
         res[bun] = streamlines
 
     return res
+
 
 def read_ivim():
     """ Load IVIM dataset
