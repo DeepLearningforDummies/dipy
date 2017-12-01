@@ -2,6 +2,9 @@
  DIPY
 ======
 
+.. image:: https://travis-ci.org/nipy/dipy.svg?branch=master
+  :target: https://travis-ci.org/nipy/dipy
+
 .. image:: https://codecov.io/gh/nipy/dipy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/nipy/dipy
 
@@ -43,11 +46,11 @@ You can find our sources and single-click downloads:
 Installing DIPY
 ===============
 
-DIPY can be installed using `pip`:
+DIPY can be installed using `pip`::
 
     pip install dipy
 
-or using `conda`:
+or using `conda`::
 
     conda install -c conda-forge dipy vtk
 

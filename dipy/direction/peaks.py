@@ -137,7 +137,7 @@ def peak_directions(odf, sphere, relative_peak_threshold=.5,
     elif n == 1:
         return sphere.vertices[indices], values, indices
 
-    odf_min = odf.min()
+    odf_min = np.min(odf)
     odf_min = odf_min if (odf_min >= 0.) else 0.
     # because of the relative threshold this algorithm will give the same peaks
     # as if we divide (values - odf_min) with (odf_max - odf_min) or not so
@@ -549,7 +549,6 @@ def peaks_from_model(model, data, sphere, relative_peak_threshold,
                            shm_coeff if return_sh else None,
                            B if return_sh else None,
                            odf_array if return_odf else None)
-
 
 
 def reshape_peaks_for_visualization(peaks):
